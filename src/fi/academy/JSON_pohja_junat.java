@@ -19,12 +19,8 @@ Asentuu Jacksonin databind, sekä core ja annotations
  */
 
 public class JSON_pohja_junat {
-    public static void main(String[] args) {
-        lueJunanJSONData();
-    }
 
-
-    private static void lueJunanJSONData() {
+    public static void lueJunanJSONData() {
         String baseurl = "https://rata.digitraffic.fi/api/v1";
         try {
             URL url = new URL(URI.create(String.format("%s/live-trains/station/HKI/LH", baseurl)).toASCIIString());
