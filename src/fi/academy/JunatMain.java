@@ -46,21 +46,29 @@ public class JunatMain {
     }
 
     private static void tulostaSeuraavaJuna(String lahtoAsema, String maaraAsema) {
-        // Tämä osa muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
+        // Muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
         String url = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
         List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
         for (Juna juna: junalista) {
             System.out.println("Junanumero: " + juna.getTrainNumber());
+            for (TimeTableRow lista: juna.getTimeTableRows()) {
+                if (lista.isTrainStopping() == true && lista.getType().equals("ARRIVAL")) {
+                    System.out.println("Juna saapuu asemalle " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+                } else if (lista.isTrainStopping() == true && lista.getType().equals("DEPARTURE")) {
+                    System.out.println("Juna lähtee asemalta " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+                } else if (lista.isTrainStopping() == false) {
+                    System.out.println("Keskity!!! Juna ei pysähdy seuraavalla asemalla.");
+                }
+            }
         }
     }
 
-
-// Tämä osa muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
-
     private static void tulostaSeuraavaAsema(String junaNro) {
-            String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
+        // Muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
+
+        String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
             System.out.println(url);
-            List<Juna> junalista = JSONjunat.lueJunanJSONData(url);;
+            List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
             for (Juna juna: junalista) {
                 System.out.println("Aseman kirjainkoodi: " + juna.getStationShortCode());
             }
