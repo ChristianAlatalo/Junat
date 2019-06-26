@@ -44,7 +44,7 @@ public class JunatMain {
     public static void tulostaSeuraavaJuna(String lahtoAsema, String maaraAsema) {
         // Tämä osa muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
         String ekaUrl = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
-        List<Juna> junat = JSON_pohja_junat.lueJunanJSONData(ekaUrl);
+        List<Juna> junat = JSONjunat.lueJunanJSONData(ekaUrl);
         for (Juna juna: junat) {
             System.out.println("Junanumero: " + juna.getTrainNumber());
         }
@@ -56,7 +56,7 @@ public class JunatMain {
         public static void tulostaSeuraavaAsema(String junaNro) {
             String tokaUrl = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
             System.out.println(tokaUrl);
-            List<Juna> junat = JSON_pohja_junat.lueJunanJSONData(tokaUrl);
+            List<Juna> junat = JSONjunat.lueJunanJSONData(tokaUrl);
             for (Juna juna: junat) {
                 System.out.println("Aseman kirjainkoodi: " + juna.getStationShortCode());
             }
@@ -69,5 +69,4 @@ public class JunatMain {
 
 
     }
-
 }
