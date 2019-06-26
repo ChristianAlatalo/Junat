@@ -1,6 +1,7 @@
 package fi.academy;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,7 +13,7 @@ public class JunatMain {
             + "3: Olen hukassa?!\n"
             + "0: Lopeta";
 
-    public void kaynnista() {
+    private void kaynnista() {
         Scanner lukija = new Scanner(System.in);
 
         outerloop:
@@ -41,11 +42,11 @@ public class JunatMain {
         }
     }
 
-    public static void tulostaSeuraavaJuna(String lahtoAsema, String maaraAsema) {
+    private static void tulostaSeuraavaJuna(String lahtoAsema, String maaraAsema) {
         // Tämä osa muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
-        String ekaUrl = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
-        List<Juna> junat = JSONjunat.lueJunanJSONData(ekaUrl);
-        for (Juna juna: junat) {
+        String url = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
+        List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
+        for (Juna juna: junalista) {
             System.out.println("Junanumero: " + juna.getTrainNumber());
         }
     }
@@ -53,11 +54,11 @@ public class JunatMain {
 
 // Tämä osa muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
 
-        public static void tulostaSeuraavaAsema(String junaNro) {
-            String tokaUrl = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
-            System.out.println(tokaUrl);
-            List<Juna> junat = JSONjunat.lueJunanJSONData(tokaUrl);
-            for (Juna juna: junat) {
+    private static void tulostaSeuraavaAsema(String junaNro) {
+            String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
+            System.out.println(url);
+            List<Juna> junalista = JSONjunat.lueJunanJSONData(url);;
+            for (Juna juna: junalista) {
                 System.out.println("Aseman kirjainkoodi: " + juna.getStationShortCode());
             }
         }
@@ -65,8 +66,5 @@ public class JunatMain {
 
     public static void main(String[] args) {
        new JunatMain().kaynnista();
-       //System.out.println(JSON_pohja_junat.lueJunanJSONData("https://rata.digitraffic.fi/api/v1/live-trains/station/HKI/LH"));
-
-
     }
 }
