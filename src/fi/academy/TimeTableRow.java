@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TimeTableRow {
-    //edited by samu
+
     boolean trainStopping; //Pysähtyykö juna liikennepaikalla
     String stationShortCode; //Aseman lyhennekoodi
     //    stationcUICCode: 1-9999  Aseman UIC-koodi
