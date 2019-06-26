@@ -36,6 +36,9 @@ public class JunatMain {
                 case "3":
                     System.out.println("Valitsit vaihtoehdon 3");
                     break;
+                case "4":
+                    System.out.println("Juna Tylypahkaan lähtee laiturilta 9 3/4!");
+                    break;
                 case "0":
                     break outerloop;
             }
