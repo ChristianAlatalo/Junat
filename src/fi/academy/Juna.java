@@ -1,8 +1,10 @@
 package fi.academy;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Date;
 import java.util.List;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Juna {
         boolean cancelled;
         String commuterLineID;
@@ -19,6 +21,8 @@ public class Juna {
         String trainType;
         long version;
         String stationShortCode;
+        int speed;
+        Location location;
 
         @Override
         public String toString() {
@@ -132,5 +136,14 @@ public class Juna {
         public String getStationShortCode() {
             return this.stationShortCode;
         }
+
+        public int getSpeed() {
+            return this.speed;
+        }
+
+        public Location getLocation() {
+            return this.location;
+        }
     }
+
 
