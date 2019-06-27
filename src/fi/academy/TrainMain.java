@@ -1,12 +1,11 @@
 package fi.academy;
 
-import fi.academy.Station;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
-public class JunatMain {
+public class TrainMain {
 
     private static final String menuteksti = "\nAnna vaihtoehto:\n"
             + "1: Hae seuraava juna\n"
@@ -68,15 +67,18 @@ public class JunatMain {
             }
             if (!(lahtoAsemaLyhyt.equals("")) && (!(maaraAsemaLyhyt.equals("")))) {
                 break;
-            } else {
-                System.out.println("Keskity!!!");
-                return;
             }
         }
 
+        if (lahtoAsemaLyhyt.equals("") || (maaraAsemaLyhyt.equals(""))) {
+            System.out.println("Keskity");
+            return;
+        }
+
+
             String junaUrl = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsemaLyhyt + "/" + maaraAsemaLyhyt;
-            List<Juna> junalista = JSON.palauttaaListanJSONsta(junaUrl, Juna.class);
-            for (Juna juna : junalista) {
+            List<Train> junalista = JSON.palauttaaListanJSONsta(junaUrl, Train.class);
+            for (Train juna : junalista) {
                 int vika = (juna.getTimeTableRows().size() - 1);
                 System.out.println("Junanumero: " + juna.getTrainNumber());
                 System.out.println("Lähtee asemalta " + lahtoAsema + ", lähtöaika: " + juna.getTimeTableRows().get(0).getScheduledTime());
@@ -90,8 +92,8 @@ public class JunatMain {
             // Tulostaa valitun junan kaikki pysäkit, sekä lähtö- ja saapumisajat niille.
             // Muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
             String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
-            List<Juna> junalista = JSON.palauttaaListanJSONsta(url, Juna.class);
-            for (Juna juna : junalista) {
+            List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
+            for (Train juna : junalista) {
                 System.out.println("Junanumero: " + juna.getTrainNumber());
                 for (TimeTableRow lista : juna.getTimeTableRows()) {
                     if (lista.isTrainStopping() && lista.getType().equals("ARRIVAL")) {
@@ -105,7 +107,7 @@ public class JunatMain {
 
         private static void tulostaEtaisyysNopeus (String junaNro){
             String url = "https://rata.digitraffic.fi/api/v1/train-locations/latest/" + junaNro;
-            List<Juna> junalista = JSON.palauttaaListanJSONsta(url, Juna.class);
+            List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
 
             try {
                 double junanLon = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(0).toString());
@@ -149,7 +151,7 @@ public class JunatMain {
         private static boolean pysahtyykoTurussa (String junaNro){
             try {
                 String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
-                List<Juna> junanAsemaLista = JSON.palauttaaListanJSONsta(url, Juna.class);
+                List<Train> junanAsemaLista = JSON.palauttaaListanJSONsta(url, Train.class);
                 int i = 0;
                 while (i < junanAsemaLista.get(0).getTimeTableRows().size()) {
                     if (junanAsemaLista.get(0).getTimeTableRows().get(i).getStationShortCode().equals("TKU")) {
@@ -165,7 +167,7 @@ public class JunatMain {
 
 
         public static void main (String[]args){
-            new JunatMain().kaynnista();
+            new TrainMain().kaynnista();
         }
     }
 

@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Juna {
+class Train {
         boolean cancelled;
         String commuterLineID;
         //LocalDate departureDate;  // Jackson ei oikein pidä Java 8 päivistä oletuksena
