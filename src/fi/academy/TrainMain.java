@@ -24,9 +24,9 @@ public class TrainMain {
             switch (vastaus) {
                 case "1":
                     System.out.println("Anna lähtöasema:");
-                    String lahtoAsema = lukija.nextLine().toUpperCase().trim();
+                    String lahtoAsema = lukija.nextLine().trim();
                     System.out.println("Anna määränpää:");
-                    String maaraAsema = lukija.nextLine().toUpperCase().trim();
+                    String maaraAsema = lukija.nextLine().trim();
                     tulostaReitinJunienLahtoJaSaapumisajat(lahtoAsema, maaraAsema);
                     break;
                 case "2":
@@ -52,29 +52,14 @@ public class TrainMain {
     private static void tulostaReitinJunienLahtoJaSaapumisajat(String lahtoAsema, String maaraAsema) {
         // Tulostaa valitun reitin kaikki junat, ja vain niiden lähtöajan lähtöasemalta sekä saapumisajan määräasemalle.
         // Muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
-        String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
-        List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
-        String lahtoAsemaLyhyt = "";
-        String maaraAsemaLyhyt = "";
-        for (Station asema : asemaLista) {
-            if (asema.getStationName().toUpperCase().equals(lahtoAsema)) {
-                lahtoAsemaLyhyt = asema.getStationShortCode();
-                lahtoAsema = asema.getStationName();
-            }
-            if (asema.getStationName().toUpperCase().equals(maaraAsema)) {
-                maaraAsemaLyhyt = asema.getStationShortCode();
-                maaraAsema = asema.getStationName();
-            }
-            if (!(lahtoAsemaLyhyt.equals("")) && (!(maaraAsemaLyhyt.equals("")))) {
-                break;
-            }
-        }
+
+        String lahtoAsemaLyhyt = palauttaaAsemanNimenLyhytkoodina(lahtoAsema);
+        String maaraAsemaLyhyt = palauttaaAsemanNimenLyhytkoodina(maaraAsema);
 
         if (lahtoAsemaLyhyt.equals("") || (maaraAsemaLyhyt.equals(""))) {
-            System.out.println("Keskity");
+            System.out.println("Reittivalinta on virheellinen");
             return;
         }
-
 
             String junaUrl = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsemaLyhyt + "/" + maaraAsemaLyhyt;
             List<Train> junalista = JSON.palauttaaListanJSONsta(junaUrl, Train.class);
@@ -97,9 +82,9 @@ public class TrainMain {
                 System.out.println("Junanumero: " + juna.getTrainNumber());
                 for (TimeTableRow lista : juna.getTimeTableRows()) {
                     if (lista.isTrainStopping() && lista.getType().equals("ARRIVAL")) {
-                        System.out.println("Juna saapuu asemalle " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+                        System.out.println("Juna saapuu asemalle " + palauttaaLyhytkoodistaAsemanNimen(lista.getStationShortCode()) + " kello: " + lista.getScheduledTime());
                     } else if (lista.isTrainStopping() && lista.getType().equals("DEPARTURE")) {
-                        System.out.println("Juna lähtee asemalta " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+                        System.out.println("Juna lähtee asemalta " + palauttaaLyhytkoodistaAsemanNimen(lista.getStationShortCode()) + " kello: " + lista.getScheduledTime());
                     }
                 }
             }
@@ -165,8 +150,35 @@ public class TrainMain {
             }
         }
 
+        private static String palauttaaAsemanNimenLyhytkoodina(String asemaNimi) {
 
-        public static void main (String[]args){
+            String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
+            List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
+            String asemaLyhyt = "";
+            for (Station asema: asemaLista) {
+                if (asema.getStationName().toUpperCase().equals(asemaNimi.toUpperCase())) {
+                    asemaLyhyt = asema.getStationShortCode();
+                    return asemaLyhyt;
+                }
+            }
+            return asemaLyhyt;
+        }
+
+        private static String palauttaaLyhytkoodistaAsemanNimen(String asemanLyhytkoodi) {
+
+        String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
+            List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
+            String asemanNimi = "";
+            for (Station asema: asemaLista) {
+                if (asema.getStationShortCode().toUpperCase().equals(asemanLyhytkoodi.toUpperCase())) {
+                    asemanNimi = asema.getStationName();
+                    return asemanNimi;
+                }
+            }
+            return asemanNimi;
+        }
+
+        public static void main (String[]args) {
             new TrainMain().kaynnista();
         }
     }
