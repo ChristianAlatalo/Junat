@@ -1,11 +1,11 @@
 package fi.academy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.Date;
 import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Juna {
+class Juna {
         boolean cancelled;
         String commuterLineID;
         //LocalDate departureDate;  // Jackson ei oikein pidä Java 8 päivistä oletuksena

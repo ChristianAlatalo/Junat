@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TimeTableRow {
+class TimeTableRow {
 
     boolean trainStopping; //Pysähtyykö juna liikennepaikalla
     String stationShortCode; //Aseman lyhennekoodi
@@ -55,28 +55,13 @@ public class TimeTableRow {
         this.cancelled = cancelled;
     }
 
-    public Date getScheduledTime() {
-
-        return scheduledTime;
+    public String getScheduledTime() {
+        Format formatter = new SimpleDateFormat("HH:mm:ss dd.MM.YYYY");
+        String strDate = formatter.format(scheduledTime);
+        return strDate;
     }
 
     public void setScheduledTime(Date scheduledTime) {
         this.scheduledTime = scheduledTime;
     }
 }
-
-/*
-Tällä voi muuttaa ajan tulostuksen siistimpään muotoon!
-   Thu Jun 27 15:57:42 EEST 2019
-    LocalDateTime myDateObj = LocalDateTime.now();
-    System.out.println("Before formatting: " + myDateObj);
-    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-
-    String formattedDate = myDateObj.format(myFormatObj);
-    System.out.println("After formatting: " + formattedDate);
-}
-Tai tällä??
-Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-String s = formatter.format(date);
-
- */

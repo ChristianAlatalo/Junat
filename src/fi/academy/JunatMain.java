@@ -56,16 +56,14 @@ public class JunatMain {
         for (Juna juna: junalista) {
             System.out.println("Junanumero: " + juna.getTrainNumber());
             for (TimeTableRow lista: juna.getTimeTableRows()) {
-                if (lista.isTrainStopping() == true && lista.getType().equals("ARRIVAL")) {
+                if (lista.isTrainStopping() && lista.getType().equals("ARRIVAL")) {
                     System.out.println("Juna saapuu asemalle " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
-                } else if (lista.isTrainStopping() == true && lista.getType().equals("DEPARTURE")) {
+                } else if (lista.isTrainStopping() && lista.getType().equals("DEPARTURE")) {
                     System.out.println("Juna lähtee asemalta " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
-                } else if (lista.isTrainStopping() == false) {
-                    System.out.println("Keskity!!! Juna ei pysähdy seuraavalla asemalla.");
+                }
                 }
             }
         }
-    }
 
     // CASE 1
     private static void tulostaReitinJunienLahtoJaSaapumisajat(String lahtoAsema, String maaraAsema) {
@@ -76,8 +74,8 @@ public class JunatMain {
         for (Juna juna: junalista) {
             int vika = (juna.getTimeTableRows().size() - 1);
             System.out.println("Junanumero: " + juna.getTrainNumber());
-            System.out.println("Lähtee asemalta " + lahtoAsema + ", lähtöaika: " + juna.getTimeTableRows().get(0).scheduledTime);
-            System.out.println("Saapuu asemalle " + maaraAsema + ", saapumisaika: " + juna.getTimeTableRows().get(vika).scheduledTime);
+            System.out.println("Lähtee asemalta " + lahtoAsema + ", lähtöaika: " + juna.getTimeTableRows().get(0).getScheduledTime());
+            System.out.println("Saapuu asemalle " + maaraAsema + ", saapumisaika: " + juna.getTimeTableRows().get(vika).getScheduledTime());
             System.out.println("");
         }
     }
@@ -117,20 +115,31 @@ public class JunatMain {
         List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
         double junanLon = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(0).toString());
         double junanLat = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(1).toString());
-        long etaisyysTurkuun = Math.round(JunatMain.etaisyysTurkuun(junanLat, junanLon));
-        System.out.println("Etäisyys Turkuun on " + etaisyysTurkuun + "km ja nopeutesi on " + junalista.get(0).getSpeed() + "km/h.");
+        long etaisyysTurkuun = Math.round(etaisyysTurkuun(junanLat, junanLon));
+       // System.out.println("Etäisyys Turkuun on " + etaisyysTurkuun + "km ja nopeutesi on " + junalista.get(0).getSpeed() + "km/h.");
 
+        if (pysahtyykoTurussa(junaNro) && etaisyysTurkuun > 100) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, Vielä ehtii poistua!");
+        } else if (pysahtyykoTurussa(junaNro) && etaisyysTurkuun < 100) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km");
+        } else if (pysahtyykoTurussa(junaNro) && etaisyysTurkuun < 50) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km");
+        } else if (pysahtyykoTurussa(junaNro) && etaisyysTurkuun < 10) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, HYPPÄÄ NYT (junan nopeus on " + junalista.get(0).getSpeed() + "km/h");
+        } else if (pysahtyykoTurussa(junaNro) && etaisyysTurkuun < 4) {
+            System.out.println("Juna on Turussa. Siirry lähimpään vessaan, avaa \"in case of Turku\"-pakkaus ja nauti syanidikapseli");
+        }
+        else {
+            System.out.println("Juna ei pysähdy Turussa, kaikki hyvin!");
+        }
     }
 
     private static double etaisyysTurkuun(double lat1, double lon1) {
 
         Scanner lukija = new Scanner(System.in);
 
-            /*System.out.println("Syötä junanumero");
-            int junaNro = Integer.valueOf(lukija.nextLine());*/
-
-            double lat2 = 60.454510;
-            double lon2 = 22.264824;
+            double lat2 = 60.453832;
+            double lon2 = 22.253441;
 
             double theta = lon1 - lon2;
             double dist = Math.sin((lat1)* (Math.PI / 180.0)) * Math.sin((lat2)* (Math.PI / 180.0)) + Math.cos((lat1)* (Math.PI / 180.0)) * Math.cos((lat2)* (Math.PI / 180.0)) * Math.cos((theta)* (Math.PI / 180.0));
@@ -140,7 +149,19 @@ public class JunatMain {
             dist = dist * 1.609344;
 
             return dist;
+        }
 
+        private static boolean pysahtyykoTurussa(String junaNro) {
+        String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
+        List<Juna> junanAsemaLista = JSONjunat.lueJunanJSONData(url);
+        int i = 0;
+        while (i < junanAsemaLista.get(0).getTimeTableRows().size()) {
+            if (junanAsemaLista.get(0).getTimeTableRows().get(i).getStationShortCode().equals("TKU")) {
+                return true;
+            }
+            i++;
+        }
+        return false;
         }
 
 
