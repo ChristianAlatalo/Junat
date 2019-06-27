@@ -9,7 +9,7 @@ public class JunatMain {
 
     private static final String menuteksti = "\nAnna vaihtoehto:\n"
             + "1: Hae seuraava juna\n"
-            + "2: Hae seuraava asema\n"
+            + "2: Hae seuraavat asemat\n"
             + "3: Matkalla Turkuun?\n"
             + "0: Lopeta";
 
@@ -24,18 +24,19 @@ public class JunatMain {
             switch (vastaus) {
                 case "1":
                     System.out.println("Anna lähtöaseman kirjainkoodi:");
-                    String lahtoAsema = lukija.nextLine();
+                    String lahtoAsema = lukija.nextLine().toUpperCase().trim();
                     System.out.println("Anna määränpään kirjainkoodi:");
-                    String maaraAsema = lukija.nextLine();
-                    tulostaJunaYkkonen(lahtoAsema, maaraAsema);
+                    String maaraAsema = lukija.nextLine().toUpperCase().trim();
+                    tulostaReitinJunienLahtoJaSaapumisajat(lahtoAsema, maaraAsema);
                     break;
                 case "2":
                     System.out.println("Anna junan numero:");
-                    String junaNro1 = lukija.nextLine();
-                    tulostaSeuraavaAsema(junaNro1);
+                    String junaNro1 = lukija.nextLine().trim();
+                    tulostaJunareitinKaikkiLahtoJaSaapumisajat(junaNro1);
+                    break;
                 case "3":
                     System.out.println("Anna junan numero:");
-                    String junaNro2 = lukija.nextLine();
+                    String junaNro2 = lukija.nextLine().trim();
                     tulostaEtaisyysNopeus(junaNro2);
                     break;
                 case "4":
@@ -47,7 +48,7 @@ public class JunatMain {
         }
     }
 
-    private static void tulostaSeuraavaJuna(String lahtoAsema, String maaraAsema) {
+    private static void tulostaSeuraavaJunaKaikki(String lahtoAsema, String maaraAsema) {
         // Muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
         // Tulostaa valitun reitin kaikki junat, ja niiden KAIKKI lähtöajat ja saapumisajat KAIKILLA asemilla.
         String url = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
@@ -64,7 +65,8 @@ public class JunatMain {
             }
         }
 
-    private static void tulostaJunaYkkonen(String lahtoAsema, String maaraAsema) {
+    // CASE 1
+    private static void tulostaReitinJunienLahtoJaSaapumisajat(String lahtoAsema, String maaraAsema) {
         // Tulostaa valitun reitin kaikki junat, ja vain niiden lähtöajan lähtöasemalta sekä saapumisajan määräasemalle.
         // Muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
         String url = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
@@ -78,9 +80,28 @@ public class JunatMain {
         }
     }
 
+    // CASE 2
+    private static void tulostaJunareitinKaikkiLahtoJaSaapumisajat(String junaNro) {
+        // Tulostaa valitun junan kaikki pysäkit, sekä lähtö- ja saapumisajat niille.
+        // Muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
+        String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
+        List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
+        for (Juna juna: junalista) {
+            System.out.println("Junanumero: " + juna.getTrainNumber());
+            for (TimeTableRow lista: juna.getTimeTableRows()) {
+                if (lista.isTrainStopping() == true && lista.getType().equals("ARRIVAL")) {
+                    System.out.println("Juna saapuu asemalle " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+                } else if (lista.isTrainStopping() == true && lista.getType().equals("DEPARTURE")) {
+                    System.out.println("Juna lähtee asemalta " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+                } else if (lista.isTrainStopping() == false) {
+                    System.out.println("Keskity!!! Juna ei pysähdy seuraavalla asemalla.");
+                }
+            }
+        }
+    }
+
     private static void tulostaSeuraavaAsema(String junaNro) {
         // Muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
-
         String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
             System.out.println(url);
             List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
