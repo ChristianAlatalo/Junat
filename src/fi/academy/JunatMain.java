@@ -105,21 +105,20 @@ public class JunatMain {
     private static void tulostaEtaisyysNopeus(String junaNro) {
         String url = "https://rata.digitraffic.fi/api/v1/train-locations/latest/" + junaNro;
         List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
-        for (Juna juna: junalista) {
-            System.out.println("Koordinaattisi ovat " + juna.getLocation().getCoordinates() + " ja nopeutesi on " + juna.getSpeed() + "km/h:ssa.");
-        }
+        double junanLon = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(0).toString());
+        double junanLat = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(1).toString());
+        long etaisyysTurkuun = Math.round(JunatMain.etaisyysTurkuun(junanLat, junanLon));
+        System.out.println("Etäisyys Turkuun on " + etaisyysTurkuun + "km ja nopeutesi on " + junalista.get(0).getSpeed() + "km/h.");
+
     }
 
-    private static void matkallaTurkuun() {
+    private static double etaisyysTurkuun(double lat1, double lon1) {
 
         Scanner lukija = new Scanner(System.in);
 
             /*System.out.println("Syötä junanumero");
             int junaNro = Integer.valueOf(lukija.nextLine());*/
 
-
-            double lat1 = 60.192059;
-            double lon1 = 24.945831;
             double lat2 = 60.454510;
             double lon2 = 22.264824;
 
@@ -130,7 +129,7 @@ public class JunatMain {
             dist = dist * 60 * 1.1515;
             dist = dist * 1.609344;
 
-            System.out.println(dist);
+            return dist;
 
         }
 
