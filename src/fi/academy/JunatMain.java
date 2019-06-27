@@ -27,7 +27,7 @@ public class JunatMain {
                     String lahtoAsema = lukija.nextLine();
                     System.out.println("Anna määränpään kirjainkoodi:");
                     String maaraAsema = lukija.nextLine();
-                    tulostaSeuraavaJuna(lahtoAsema, maaraAsema);
+                    tulostaJunaYkkonen(lahtoAsema, maaraAsema);
                     break;
                 case "2":
                     System.out.println("Anna junan numero:");
@@ -49,6 +49,7 @@ public class JunatMain {
 
     private static void tulostaSeuraavaJuna(String lahtoAsema, String maaraAsema) {
         // Muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
+        // Tulostaa valitun reitin kaikki junat, ja niiden KAIKKI lähtöajat ja saapumisajat KAIKILLA asemilla.
         String url = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
         List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
         for (Juna juna: junalista) {
@@ -62,6 +63,31 @@ public class JunatMain {
                     System.out.println("Keskity!!! Juna ei pysähdy seuraavalla asemalla.");
                 }
             }
+        }
+    }
+
+    private static void tulostaJunaYkkonen(String lahtoAsema, String maaraAsema) {
+        // Tulostaa valitun reitin kaikki junat, ja vain niiden lähtöajan lähtöasemalta sekä saapumisajan määräasemalle.
+        // Muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
+        String url = "https://rata.digitraffic.fi/api/v1/live-trains/station/" + lahtoAsema + "/" + maaraAsema;
+        List<Juna> junalista = JSONjunat.lueJunanJSONData(url);
+        for (Juna juna: junalista) {
+            int vika = (juna.getTimeTableRows().size() - 1);
+            System.out.println("Junanumero: " + juna.getTrainNumber());
+            System.out.println("Lähtee asemalta " + lahtoAsema + ", lähtöaika: " + juna.getTimeTableRows().get(0).scheduledTime);
+            System.out.println("Saapuu asemalle " + maaraAsema + ", saapumisaika: " + juna.getTimeTableRows().get(vika).scheduledTime);
+            System.out.println("");
+
+//                for (TimeTableRow lista: juna.getTimeTableRows()) {
+//                System.out.println("Juna lähtee asemalta " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+//                if (lista.isTrainStopping() == true && lista.getType().equals("ARRIVAL")) {
+//                    System.out.println("Juna saapuu asemalle " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+//                } else if (lista.isTrainStopping() == true && lista.getType().equals("DEPARTURE")) {
+//                    System.out.println("Juna lähtee asemalta " + lista.getStationShortCode() + " kello: " + lista.getScheduledTime());
+//                } else if (lista.isTrainStopping() == false) {
+//                    System.out.println("Keskity!!! Juna ei pysähdy seuraavalla asemalla.");
+
+
         }
     }
 
