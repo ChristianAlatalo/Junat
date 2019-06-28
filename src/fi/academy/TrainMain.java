@@ -137,6 +137,11 @@ public class TrainMain {
         String url = "https://rata.digitraffic.fi/api/v1/train-locations/latest/" + junaNro;
         List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
 
+        if (junalista.isEmpty()) {
+            System.out.println("Juna pysähtyy Turussa, mutta ei ole lähtenyt vielä. Ehdit hyvin poistua ennen matkan alkua.");
+            return;
+        }
+
         double junaLon = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(0).toString());
         double junaLat = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(1).toString());
         long etaisyysTurkuun = Math.round(palauttaaEtaisyydenTurkuun(junaLat, junaLon));
