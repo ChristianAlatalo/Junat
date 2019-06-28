@@ -8,8 +8,8 @@ import java.util.Scanner;
 public class TrainMain {
 
     private static final String menuteksti = "\nAnna vaihtoehto:\n"
-            + "1: Hae seuraava juna\n"
-            + "2: Hae seuraavat asemat\n"
+            + "1: Hae seuraavat junat\n"
+            + "2: Hae junan kulkutiedot\n"
             + "3: Onko junani matkalla Turkuun?\n"
             + "0: Lopeta";
 
@@ -43,6 +43,11 @@ public class TrainMain {
                     System.out.println("Juna Tylypahkaan lähtee laiturilta 9 3/4!");
                     break;
                 case "0":
+
+                    System.out.println("\n\n____\n" +
+                            "|DD|____T_\n" +
+                            "|_ |_____|<\n" +
+                            "  @-@-@-oo\\\n\n");
                     break outerloop;
             }
         }
@@ -75,107 +80,107 @@ public class TrainMain {
             return;
         }
 
-            for (Train juna : junalista) {
-                int vika = (juna.getTimeTableRows().size() - 1);
-                System.out.println("Junanumero: " + juna.getTrainNumber());
-                String junaSaapuu = String.format("Lähtee asemalta %-15s %-12s %20s",lahtoAsema, "lähtöaika:",juna.getTimeTableRows().get(0).getScheduledTime());
-                String junaLahtee = String.format("Saapuu asemalle %-15s %-12s %19s", maaraAsema, "saapumisaika:",juna.getTimeTableRows().get(vika).getScheduledTime());
-                System.out.println(junaSaapuu);
-                System.out.println(junaLahtee + "\n");
+        for (Train juna : junalista) {
+            int vika = (juna.getTimeTableRows().size() - 1);
+            System.out.println("Junanumero: " + juna.getTrainNumber());
+            String junaSaapuu = String.format("Lähtee asemalta %-15s %-12s %20s", lahtoAsema, "lähtöaika:", juna.getTimeTableRows().get(0).getScheduledTime());
+            String junaLahtee = String.format("Saapuu asemalle %-15s %-12s %19s", maaraAsema, "saapumisaika:", juna.getTimeTableRows().get(vika).getScheduledTime());
+            System.out.println(junaSaapuu);
+            System.out.println(junaLahtee + "\n");
         }
     }
 
-        // CASE 2
-        private static void tulostaaJunareitinKaikkiLahtoJaSaapumisajat (String junaNro){
-            // Tulostaa valitun junan kaikki pysäkit, sekä lähtö- ja saapumisajat niille.
-            // Muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
+    // CASE 2
+    private static void tulostaaJunareitinKaikkiLahtoJaSaapumisajat(String junaNro) {
+        // Tulostaa valitun junan kaikki pysäkit, sekä lähtö- ja saapumisajat niille.
+        // Muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
 
-            if (!(onkoJunaAjossa(junaNro))) {
-                System.out.println("Juna " + junaNro + " ei ole ajossa");
-                return;
-            }
+        if (!(onkoJunaAjossa(junaNro))) {
+            System.out.println("Juna " + junaNro + " ei ole ajossa");
+            return;
+        }
 
-            String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
-            List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
+        String url = "https://rata.digitraffic.fi/api/v1/trains/" + LocalDate.now() + "/" + junaNro;
+        List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
 
-            if ((junalista.isEmpty())) {
-                System.out.println("Juna " + junaNro + " ei ole liikenteessä.");
-                return;
-            }
-            for (Train juna : junalista) {
-                System.out.println("Junanumero: " + juna.getTrainNumber());
-                for (TimeTableRow lista : juna.getTimeTableRows()) {
-                    if (lista.isTrainStopping() && lista.getType().equals("ARRIVAL")) {
-                        String saapuuAsemalle = String.format("Saapuu asemalle %-15s %-12s %20s",palauttaaLyhytkoodistaAsemanNimen(lista.getStationShortCode()), "lähtöaika:", lista.getScheduledTime());
-                        System.out.println(saapuuAsemalle);
-                    } else if (lista.isTrainStopping() && lista.getType().equals("DEPARTURE")) {
-                        String lahteeAsemalta = String.format("Lähtee asemalta %-15s %-12s %19s", palauttaaLyhytkoodistaAsemanNimen(lista.getStationShortCode()), "saapumisaika:",lista.getScheduledTime());
-                        System.out.println(lahteeAsemalta);
-                    }
+        if ((junalista.isEmpty())) {
+            System.out.println("Juna " + junaNro + " ei ole liikenteessä.");
+            return;
+        }
+        for (Train juna : junalista) {
+            System.out.println("Junanumero: " + juna.getTrainNumber());
+            for (TimeTableRow lista : juna.getTimeTableRows()) {
+                if (lista.isTrainStopping() && lista.getType().equals("ARRIVAL")) {
+                    String saapuuAsemalle = String.format("Saapuu asemalle %-15s %-12s %20s", palauttaaLyhytkoodistaAsemanNimen(lista.getStationShortCode()), "lähtöaika:", lista.getScheduledTime());
+                    System.out.println(saapuuAsemalle);
+                } else if (lista.isTrainStopping() && lista.getType().equals("DEPARTURE")) {
+                    String lahteeAsemalta = String.format("Lähtee asemalta %-15s %-12s %19s", palauttaaLyhytkoodistaAsemanNimen(lista.getStationShortCode()), "saapumisaika:", lista.getScheduledTime());
+                    System.out.println(lahteeAsemalta);
                 }
             }
         }
+    }
 
-        // CASE 3
-        private static void onkoJunaniMatkallaTurkuun(String junaNro){
+    // CASE 3
+    private static void onkoJunaniMatkallaTurkuun(String junaNro) {
 
-            if (!(onkoJunaAjossa(junaNro))) {
-                System.out.println("Juna " + junaNro + " ei ole ajossa.");
-                return;
+        if (!(onkoJunaAjossa(junaNro))) {
+            System.out.println("Juna " + junaNro + " ei ole ajossa.");
+            return;
+        }
+
+        if (!(pysahtyykoJunaTurussa(junaNro))) {
+            System.out.println("Juna " + junaNro + " ei pysähdy Turussa, kaikki hyvin!");
+            return;
+        }
+
+        String url = "https://rata.digitraffic.fi/api/v1/train-locations/latest/" + junaNro;
+        List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
+
+        double junaLon = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(0).toString());
+        double junaLat = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(1).toString());
+        long etaisyysTurkuun = Math.round(palauttaaEtaisyydenTurkuun(junaLat, junaLon));
+
+        if (etaisyysTurkuun >= 100) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, vielä ehtii poistua!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
+        } else if (etaisyysTurkuun < 100 && etaisyysTurkuun >= 50) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, nyt kannattaisi pitää kiirettä. Turku häämöttää!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
+        } else if (etaisyysTurkuun < 50 && etaisyysTurkuun >= 10) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, nyt tarkkana!!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
+        } else if (etaisyysTurkuun < 10 && etaisyysTurkuun >= 4) {
+            System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, HYPPÄÄ NYT!!!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
+        } else if (etaisyysTurkuun < 4) {
+            System.out.println("Juna on Turussa. Siirry rauhallisesti lähimpään vessaan ja lukitse ovi kunnes juna on poistunut Turusta. Älä kerro tapahtuneesta kenellekkään.");
+        }
+    }
+
+    private static boolean onkoJunaAjossa(String junaNro) {
+        String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
+        List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
+
+        if (junalista.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean pysahtyykoJunaTurussa(String junaNro) {
+
+        String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
+        List<Train> junanAsemaLista = JSON.palauttaaListanJSONsta(url, Train.class);
+        int i = 0;
+        while (i < junanAsemaLista.get(0).getTimeTableRows().size()) {
+            if (junanAsemaLista.get(0).getTimeTableRows().get(i).getStationShortCode().equals("TKU")) {
+                return true;
             }
-
-            if (!(pysahtyykoJunaTurussa(junaNro))) {
-                System.out.println("Juna " + junaNro + " ei pysähdy Turussa, kaikki hyvin!");
-                return;
-            }
-
-            String url = "https://rata.digitraffic.fi/api/v1/train-locations/latest/" + junaNro;
-            List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
-
-                double junaLon = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(0).toString());
-                double junaLat = Double.parseDouble(junalista.get(0).getLocation().getCoordinates().get(1).toString());
-                long etaisyysTurkuun = Math.round(palauttaaEtaisyydenTurkuun(junaLat, junaLon));
-
-                if (etaisyysTurkuun >= 100) {
-                    System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, vielä ehtii poistua!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
-                } else if (etaisyysTurkuun < 100 && etaisyysTurkuun >= 50) {
-                    System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, nyt kannattaisi pitää kiirettä. Turku häämöttää!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
-                } else if (etaisyysTurkuun < 50 && etaisyysTurkuun >= 10) {
-                    System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, nyt tarkkana!!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
-                } else if (etaisyysTurkuun < 10 && etaisyysTurkuun >= 4) {
-                    System.out.println("Juna pysähtyy Turussa. Matkaa jäljellä " + etaisyysTurkuun + "km, HYPPÄÄ NYT!!!\nJunan nopeus on " + junalista.get(0).getSpeed() + "km/h");
-                } else if (etaisyysTurkuun < 4) {
-                    System.out.println("Juna on Turussa. Siirry rauhallisesti lähimpään vessaan ja lukitse ovi kunnes juna on poistunut Turusta. Älä kerro tapahtuneesta kenellekkään.");
-                }
+            i++;
         }
-
-         private static boolean onkoJunaAjossa(String junaNro) {
-             String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
-             List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
-
-             if (junalista.isEmpty()) {
-                   return false;
-                }
-
-             return true;
-        }
-
-        private static boolean pysahtyykoJunaTurussa (String junaNro){
-
-             String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
-             List<Train> junanAsemaLista = JSON.palauttaaListanJSONsta(url, Train.class);
-             int i = 0;
-             while (i < junanAsemaLista.get(0).getTimeTableRows().size()) {
-                 if (junanAsemaLista.get(0).getTimeTableRows().get(i).getStationShortCode().equals("TKU")) {
-                      return true;
-                  }
-                 i++;
-             }
-             return false;
-        }
+        return false;
+    }
 
 
-        private static double palauttaaEtaisyydenTurkuun(double lat, double lon){
+    private static double palauttaaEtaisyydenTurkuun(double lat, double lon) {
 
         double turkuLat = 60.453832;
         double turkuLon = 22.253441;
@@ -184,39 +189,39 @@ public class TrainMain {
         etaisyysTurusta = Math.acos(etaisyysTurusta) * 180.0 / Math.PI * 60 * 1.1515 * 1.609344;
 
         return etaisyysTurusta;
-        }
+    }
 
 
-        private static String palauttaaAsemanNimenLyhytkoodina(String asemaNimi) {
-
-            String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
-            List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
-            String asemaLyhyt = "";
-            for (Station asema: asemaLista) {
-                if (asema.getStationName().toUpperCase().equals(asemaNimi.toUpperCase())) {
-                    asemaLyhyt = asema.getStationShortCode();
-                    return asemaLyhyt;
-                }
-            }
-            return asemaLyhyt;
-        }
-
-        private static String palauttaaLyhytkoodistaAsemanNimen(String asemanLyhytkoodi) {
+    private static String palauttaaAsemanNimenLyhytkoodina(String asemaNimi) {
 
         String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
-            List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
-            String asemanNimi = "";
-            for (Station asema: asemaLista) {
-                if (asema.getStationShortCode().toUpperCase().equals(asemanLyhytkoodi.toUpperCase())) {
-                    asemanNimi = asema.getStationName();
-                    return asemanNimi;
-                }
+        List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
+        String asemaLyhyt = "";
+        for (Station asema : asemaLista) {
+            if (asema.getStationName().toUpperCase().equals(asemaNimi.toUpperCase())) {
+                asemaLyhyt = asema.getStationShortCode();
+                return asemaLyhyt;
             }
-            return asemanNimi;
         }
-
-        public static void main (String[]args) {
-            new TrainMain().kaynnista();
-        }
+        return asemaLyhyt;
     }
+
+    private static String palauttaaLyhytkoodistaAsemanNimen(String asemanLyhytkoodi) {
+
+        String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
+        List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
+        String asemanNimi = "";
+        for (Station asema : asemaLista) {
+            if (asema.getStationShortCode().toUpperCase().equals(asemanLyhytkoodi.toUpperCase())) {
+                asemanNimi = asema.getStationName();
+                return asemanNimi;
+            }
+        }
+        return asemanNimi;
+    }
+
+    public static void main(String[] args) {
+        new TrainMain().kaynnista();
+    }
+}
 
