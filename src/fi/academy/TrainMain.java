@@ -7,6 +7,8 @@ import java.util.Scanner;
 
 public class TrainMain {
 
+    List<Station> asemalista;
+
     private static final String menuteksti = "\nAnna vaihtoehto:\n"
             + "1: Hae seuraavat junat\n"
             + "2: Hae junan kulkutiedot\n"
@@ -15,6 +17,8 @@ public class TrainMain {
 
     private void kaynnista() {
         Scanner lukija = new Scanner(System.in);
+        String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
+        List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
 
         outerloop:
         for (; ; ) {
@@ -54,7 +58,7 @@ public class TrainMain {
     }
 
     // CASE 1
-    private static void tulostaaReitinJunienLahtoJaSaapumisajat(String lahtoAsema, String maaraAsema) {
+    private void tulostaaReitinJunienLahtoJaSaapumisajat(String lahtoAsema, String maaraAsema) {
         // Tulostaa valitun reitin kaikki junat, ja vain niiden lähtöajan lähtöasemalta sekä saapumisajan määräasemalle.
         // Muodostaa URLin, joka kertoo junat lähtöasemalta määränpäähän.
 
@@ -83,15 +87,15 @@ public class TrainMain {
         for (Train juna : junalista) {
             int vika = (juna.getTimeTableRows().size() - 1);
             System.out.println("Junanumero: " + juna.getTrainNumber());
-            String junaSaapuu = String.format("Lähtee asemalta %-15s %-12s %20s", lahtoAsema, "lähtöaika:", juna.getTimeTableRows().get(0).getScheduledTime());
-            String junaLahtee = String.format("Saapuu asemalle %-15s %-12s %19s", maaraAsema, "saapumisaika:", juna.getTimeTableRows().get(vika).getScheduledTime());
+            String junaSaapuu = String.format("Lähtee asemalta %-15s %-13s %s", lahtoAsema, "lähtöaika:", juna.getTimeTableRows().get(0).getScheduledTime());
+            String junaLahtee = String.format("Saapuu asemalle %-15s %-13s %s", maaraAsema, "saapumisaika:", juna.getTimeTableRows().get(vika).getScheduledTime());
             System.out.println(junaSaapuu);
             System.out.println(junaLahtee + "\n");
         }
     }
 
     // CASE 2
-    private static void tulostaaJunareitinKaikkiLahtoJaSaapumisajat(String junaNro) {
+    private void tulostaaJunareitinKaikkiLahtoJaSaapumisajat(String junaNro) {
         // Tulostaa valitun junan kaikki pysäkit, sekä lähtö- ja saapumisajat niille.
         // Muodostaa URLin, joka kertoo annetun junalinjan vuorot TÄNÄÄN.
 
@@ -122,7 +126,7 @@ public class TrainMain {
     }
 
     // CASE 3
-    private static void onkoJunaniMatkallaTurkuun(String junaNro) {
+    private void onkoJunaniMatkallaTurkuun(String junaNro) {
 
         if (!(onkoJunaAjossa(junaNro))) {
             System.out.println("Juna " + junaNro + " ei ole ajossa.");
@@ -159,18 +163,17 @@ public class TrainMain {
         }
     }
 
-    private static boolean onkoJunaAjossa(String junaNro) {
+    private boolean onkoJunaAjossa(String junaNro) {
         String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
         List<Train> junalista = JSON.palauttaaListanJSONsta(url, Train.class);
 
         if (junalista.isEmpty()) {
             return false;
         }
-
         return true;
     }
 
-    private static boolean pysahtyykoJunaTurussa(String junaNro) {
+    private boolean pysahtyykoJunaTurussa(String junaNro) {
 
         String url = "https://rata.digitraffic.fi/api/v1/trains/latest/" + junaNro;
         List<Train> junanAsemaLista = JSON.palauttaaListanJSONsta(url, Train.class);
@@ -185,7 +188,7 @@ public class TrainMain {
     }
 
 
-    private static double palauttaaEtaisyydenTurkuun(double lat, double lon) {
+    private double palauttaaEtaisyydenTurkuun(double lat, double lon) {
 
         double turkuLat = 60.453832;
         double turkuLon = 22.253441;
@@ -197,12 +200,10 @@ public class TrainMain {
     }
 
 
-    private static String palauttaaAsemanNimenLyhytkoodina(String asemaNimi) {
+    private String palauttaaAsemanNimenLyhytkoodina(String asemaNimi) {
 
-        String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
-        List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
         String asemaLyhyt = "";
-        for (Station asema : asemaLista) {
+        for (Station asema : this.asemalista) {
             if (asema.getStationName().toUpperCase().equals(asemaNimi.toUpperCase())) {
                 asemaLyhyt = asema.getStationShortCode();
                 return asemaLyhyt;
@@ -211,12 +212,10 @@ public class TrainMain {
         return asemaLyhyt;
     }
 
-    private static String palauttaaLyhytkoodistaAsemanNimen(String asemanLyhytkoodi) {
+    private String palauttaaLyhytkoodistaAsemanNimen(String asemanLyhytkoodi) {
 
-        String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
-        List<Station> asemaLista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
         String asemanNimi = "";
-        for (Station asema : asemaLista) {
+        for (Station asema : this.asemalista) {
             if (asema.getStationShortCode().toUpperCase().equals(asemanLyhytkoodi.toUpperCase())) {
                 asemanNimi = asema.getStationName();
                 return asemanNimi;
@@ -225,8 +224,15 @@ public class TrainMain {
         return asemanNimi;
     }
 
+    private void lataaAsemalista() {
+        String asemaUrl = "https://rata.digitraffic.fi/api/v1/metadata/stations";
+        this.asemalista = JSON.palauttaaListanJSONsta(asemaUrl, Station.class);
+    }
+
     public static void main(String[] args) {
-        new TrainMain().kaynnista();
+        TrainMain train = new TrainMain();
+        train.lataaAsemalista();
+        train.kaynnista();
     }
 }
 
